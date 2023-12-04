@@ -56,12 +56,13 @@ let userSchema = new mongoose.Schema({
           product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
           quantity: { type: Number, default: 1 },
           price: { type: Number },
-          priceTotal: { type: Number },
-          size: { type: String, required: false, default: "S" },
+          priceTotal: { type: Number  },
+          size: { type: String, default: "XS" },
      }],
 
      cartTotal: {
           type: Number,
+          default: 0,
      },
 
      refreshToken: { type: String },
@@ -70,6 +71,49 @@ let userSchema = new mongoose.Schema({
 
      resetPasswordToken: String,
      resetPasswordExpires: Date,
+
+     user_info_delivery: {
+          first_name: {
+               type: String,
+               default: "",
+          },
+          last_name: {
+               type: String,
+               default: "",
+          },
+          middle_name: {
+               type: String,
+               default: "",
+          },
+          mobile: {
+               type: String,
+               default: "",
+          },
+          email: {
+               type: String,
+               default: "",
+          },
+          city: {
+               type: String,
+               default: "",
+          },
+          region: {
+               type: String,
+               default: "",
+          },
+          address: {
+               type: String,
+               default: "",
+          },
+          zip_code: {
+               type: String,
+               default: "",
+          },
+          note: {
+               type: String,
+               default: "",
+          },
+     },
 
      deliveryAddress: {
           country: {

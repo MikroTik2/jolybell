@@ -27,7 +27,7 @@ let productSchema = new mongoose.Schema({
      },
      careInstructions: {
           type: String,
-          required: true,
+          required: true, 
      },
      careInstructionsImage: {
           type: String,
@@ -36,6 +36,10 @@ let productSchema = new mongoose.Schema({
      images: {
           type: [String],
           required: true
+     },
+     promoCode: {
+          type: String,
+
      },
      sizesText: { 
           type: [String],

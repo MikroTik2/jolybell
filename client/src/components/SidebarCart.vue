@@ -87,7 +87,8 @@
                     <div class="cart-bottom-content-code"> 
                          <div class="cart-bottom-content-code-title">Промокод</div>
 
-                         <form class="cart-bottom-content-code-form">
+                         <!-- форма для промокода -->
+                         <form class="cart-bottom-content-code-form" @submit.prevent="couponActivateForm">
                               <input 
                                    v-model="coupon"
                                    type="text"  
@@ -105,7 +106,7 @@
                          <span class="cart-bottom-content-cost-total"> {{ cartTotal }} UAH </span>
                     </div>
 
-                    <button type="submit" class="cart-bottom-content-checkout">Оформити замовлення</button>
+                    <div class="cart-bottom-content-checkout" @click="checkoutProduct">Оформити замовлення</div>
                
                </div>
           </div>
@@ -114,8 +115,11 @@
 
 <script setup>
      import { ref, watch } from 'vue';
+     import { useRouter } from 'vue-router';
      import { useCartStore } from '@/store/cartStore';
-
+     import api from '@/config/api';
+     
+     const router = useRouter();
      const emit = defineEmits();
      const cartStore = useCartStore(); 
 
@@ -126,6 +130,8 @@
           emit("close-cart");
      };
 
+     const coupon = ref("");
+
      const props = defineProps({
           isVisibleCart: {
                type: Boolean,
@@ -133,12 +139,25 @@
           },
      });
 
+     const couponActivateForm = async () => {
+          try {
+
+               const response = await api.activateCoupon(coupon.value);
+
+               await getCart();
+
+          } catch (error) {
+               console.log(error);
+          };
+     };
+
      const changeQuantityUpdate = async (type, element) => {
+
           if (type === 'minus') {
                element.quantity === 1 ? (element.quantity = 1) : element.quantity--;
           } else if (type === 'plus') {
                element.quantity === 20 ? (element.quantity = 20) : element.quantity++;
-          }
+          };
 
           await cartStore.updateQuantityCart(element.product._id, element.quantity);
           await getCart(); 
@@ -163,6 +182,8 @@
 
                await cartStore.deleteProductCart(productId);
 
+               await getCart();
+
           } catch (error) {
                console.log(error);
           };
@@ -172,8 +193,18 @@
           try {
                await cartStore.fetchCart();
           } catch (error) {
-               console.error(error);
+               console.log(error);
           }
+     };
+
+     const checkoutProduct = async () => {
+          try {
+
+               const response = await api.orderUser();
+
+          } catch (error) {
+               console.log(error);
+          };
      };
 
      watch(() => cartStore.cart, () => {

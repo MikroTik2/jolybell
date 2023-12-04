@@ -5,6 +5,8 @@ import ProductDetail from '@/views/ProductPage.vue';
 import FAQPage from '@/views/FAQPage.vue';
 import Account from '@/views/Account.vue';
 import ResetPassword from '@/views/ResetPassword.vue';
+import BookingDetails from '@/views/Booking.vue';
+import BookingPayment from '@/views/BookingPayment.vue';
 
 const router = createRouter({
      history: createWebHistory(),
@@ -15,6 +17,8 @@ const router = createRouter({
           { path: "/category/:category", name: "CategoryPage", component: CategoryPage },
           { path: "/product/:productId", name: "ProductDetail", component: ProductDetail },
           { path: "/faq", name: "FAQPage", component: FAQPage },
+          { path: "/booking/:orderId/details", name: "BookingDetails", component: BookingDetails },
+          { path: "/booking/:orderId/payment", name: "BookingPayment", component: BookingPayment },
           { path: "/reset-password/:token", name: "ResetPassword", component: ResetPassword },
      ],
 });

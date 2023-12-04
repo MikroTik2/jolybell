@@ -1,7 +1,8 @@
 <template>
      <div class="main app-page">
           <div class="main-content">
-               <img src="https://jolybell.com/img/slider/uwu_new_backpack_landscape_3.webp?" alt="">
+               <img class="main-content_image" src="/img/hero/hero-content_image.webp" alt="hero">
+               <img class="main-content_image__mobile" src="/img/hero/hero-content_mobile-image.webp" alt="hero-mobile">
           </div>
 
           <div class="main-phrase">
@@ -21,8 +22,8 @@
 
           &-content {
                contain: strict;
-               height: calc(100vh - 90px);
-               height: calc(var(--vh,1vh)*100 - 90px);
+               height: calc(90vh - 90px);
+               height: calc(var(14px, 1vh) * 100 - 90px);
                -webkit-mask-image: -webkit-radial-gradient(#fff,#000);
                overflow: hidden;
                pointer-events: none;
@@ -41,10 +42,25 @@
                     max-height: calc(100vh - 110px);
                }
 
-               img {
+               &_image {
                     width: 100%;
-                    height: 100%;
+                    height: 120%;
                     object-fit: cover;
+
+                    @media only screen and (max-width: 1375px) {
+                         display: none;
+                    }
+               }
+
+               &_image__mobile {
+                    width: 100%;
+                    height: 120%;
+                    object-fit: cover;
+                    display: none;
+
+                    @media only screen and (max-width: 1375px) {
+                         display: block;
+                    }    
                }
           }
 

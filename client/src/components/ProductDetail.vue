@@ -1,6 +1,6 @@
 <template>
      <section class="product" v-if="product" :style="productStyle">
-          <h2 class="product-title">{{ product.title }}</h2>
+          <h2 class="product-title" v-if="product.title">{{ product.title }}</h2>
 
           <div class="product-content">
                <div class="product-content-slider">
@@ -172,7 +172,6 @@
      import { useCartStore } from '@/store/cartStore';
      import api from '@/config/api';
      import ProductRecs from '@/components/ProductRecs.vue';
-     import SidebarCart from '@/components/SidebarCart.vue';
 
      import 'swiper/css';
      import 'swiper/css/navigation';
@@ -189,7 +188,6 @@
      const product = ref(null);
      const modalInstruction = ref(false);
      const modalSizeInstruction = ref(false);
-     const isCartOpen = ref(false);
      const productStyle = ref({
           backgroundColor: '', 
      });
@@ -253,6 +251,8 @@
 
                await addToCart(productId.value, chooseSize.value, quantity.value);
 
+               emit("open-cart");
+
           } catch (error) {
                console.log(error);
           };
@@ -278,7 +278,7 @@
           } catch (error) {
                console.log(error);
           };
-
+ 
           if (product.value.color === "black") {
                document.body.style.backgroundColor = "#111113";
                document.body.style.color = "#ffffff";

@@ -1,11 +1,16 @@
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
+const LiqPay = require("../my_modules/liqpay.js");
 const User = require("../models/userModel.js");
 const Product = require("../models/productModel.js");
+const Coupon = require("../models/couponModel.js");
+const Order = require("../models/orderModel.js");
 const sendEmail = require("./emailCtrl.js");
 const validateMongoDbId = require("../utils/validateMongoDbId.js");
 const { generateToken } = require("../config/jwtToken.js");
 const { generateRefreshToken } = require("../config/refreshToken.js");
+
+const liqpay = new LiqPay(process.env.PUBLIC_LIQPAY_KEY, process.env.PRIVATE_LIQPAY_KEY);
 
 // create a user
 const createUser = asyncHandler(async (req, res) => {
@@ -56,7 +61,6 @@ const createUser = asyncHandler(async (req, res) => {
 // create a user firebase
 const createUserFirebase = asyncHandler(async(req, res) => {
      const { userDataFromGoogleAuth } = req.body;
-     console.log(userDataFromGoogleAuth);
 
      try {
 
@@ -170,6 +174,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 // get address a user
 const getAddressUser = asyncHandler(async (req, res) => {
      const { _id } = req.user;
+     validateMongoDbId(id);
 
      try {
 
@@ -295,8 +300,50 @@ const forgotPassword = asyncHandler(async (req, res) => {
           };
    
           await sendEmail(emailOptions);
-   
           res.json({ message: 'Посилання для зміни пароля надіслано на вашу електронну адресу' });
+
+     } catch (error) {
+          throw new Error(error);
+     };
+});
+
+// create checkout
+const createCheckoutSession = asyncHandler(async (req, res) => {
+     const { _id } = req.user;
+     validateMongoDbId(_id);
+
+     try {
+
+          const user = await User.findById(_id);
+          if (!user) throw new Error("User not found");
+
+          const order = await Order.findOne({ orderby: _id }).populate("products.product");
+          if (!order) throw new Error("Order not found");
+
+          const params = {
+               version: "3",
+               action: "pay",
+               amount: order.cartTotal,  
+               currency: 'UAH',  
+               rro_info: {
+                    items: order.products.map(item => ({
+                         amount: item.quantity || undefined,
+                         price: item.price || undefined,
+                         cost: item.priceTotal || undefined,
+                         id: parseInt(item._id) || undefined,
+                    })),
+
+                    delivery_emails: [user.email, user.email],
+               }, 
+               description: order.products.map(item => `Quantity: ${item.quantity}, Name Products: ${item.product.title}, Size Product: ${item.size} |`),
+               order_id: order._id.toString(),
+               result_url: 'http://localhost:5173/',
+               server_url: 'http://localhost:5173/',
+               language: "uk",
+          };
+
+          const form = liqpay.cnb_form(params);
+          res.json(form);
 
      } catch (error) {
           throw new Error(error);
@@ -314,7 +361,8 @@ const addToCartUser = asyncHandler(async (req, res) => {
           if (!user) throw new Error("User not found");
 
           for (let i = 0; i < cart.length; i++) {
-               const product = await Product.findById(cart[i]._id).select('price').exec();
+               const product = await Product.findById(cart[i].product).select('price').exec();
+               if (!product) throw new Error(`Product not found ${cart[i].product}`);
 
                if (product) {
                     const existingCartItemIndex = user.cart.findIndex(item => item.product.toString() === product._id.toString());
@@ -325,23 +373,61 @@ const addToCartUser = asyncHandler(async (req, res) => {
                          user.cart[existingCartItemIndex].priceTotal = product.price * user.cart[existingCartItemIndex].quantity;
 
                     } else {
+
                          const cartItem = {
                               product: product._id,
                               quantity: cart[i].quantity,
-                              size: cart[i].size,
+                              size: cart[i].size || "XS",
                               priceTotal: product.price * cart[i].quantity,
                               price: product.price,
                          };
 
                          user.cart.push(cartItem);
-                    }
-               }
-          }
+                         
+                    };
+               };
+          };
 
-          let cartTotal = user.cart.reduce((total, item) => total + item.price * item.quantity, 0);
+          user.cartTotal = calculateCartTotal(user.cart);
 
           await user.save();
-          res.json({ cart: user.cart, cartTotal });
+          res.json({ cart: user.cart, cartTotal: user.cartTotal });
+
+     } catch (error) {
+          throw new Error(error);
+     };
+});
+
+// coupon code
+const applyCode = asyncHandler(async (req, res) => {
+     const { couponCode } = req.body;
+     const { _id } = req.user;
+     validateMongoDbId(_id);
+
+     try {
+
+          const user = await User.findById(_id);
+          if (!user) throw new Error("User not found");
+
+          let couponDiscount = 0;
+
+          if (couponCode) {
+
+               const coupon = await Coupon.findOne({ code: couponCode });
+               if (!coupon) throw new Error("Coupon not found");
+
+               if (coupon && coupon.expirationDate > new Date() ) {
+                    couponDiscount = coupon.discountPercentage
+               } else {
+                    throw new Error("Invalid coupon code or expired");
+               };
+          };
+
+          user.cartTotal = calculateCartTotal(user.cart) * (1 - couponDiscount / 100);
+
+          await user.save();
+
+          res.json({ cartTotal: user.cartTotal });
 
      } catch (error) {
           throw new Error(error);
@@ -352,6 +438,7 @@ const addToCartUser = asyncHandler(async (req, res) => {
 const addToCartUpdate = asyncHandler(async (req, res) => {
      const { _id } = req.user;
      const { productId, quantity } = req.body;
+     validateMongoDbId(_id);
 
      try {
 
@@ -368,10 +455,10 @@ const addToCartUpdate = asyncHandler(async (req, res) => {
                existingCartItem.priceTotal = product.price * quantity;
           };
 
-          const cartTotal = user.cart.reduce((total, item) => total + item.priceTotal, 0);
+          user.cartTotal = calculateCartTotal(user.cart);
 
           await user.save();
-          res.json({ cart: user.cart, cartTotal });
+          res.json({ cart: user.cart, cart: user.cartTotal });
 
      } catch (error) {
           throw new Error(error);
@@ -382,6 +469,7 @@ const addToCartUpdate = asyncHandler(async (req, res) => {
 const addToCartUpdateSizes = asyncHandler(async (req, res) => {
      const { _id } = req.user;
      const { productId, size } = req.body;
+     validateMongoDbId(_id);
 
      try {
 
@@ -409,16 +497,22 @@ const addToCartUpdateSizes = asyncHandler(async (req, res) => {
 const removeToCartUser = asyncHandler(async (req, res) => {
      const { _id } = req.user;
      const { productId } = req.params;
+     validateMongoDbId(_id);
 
      try {
 
           const user = await User.findById(_id);
-          if (!user) throw new Error("User not found");
+          if (!user) throw new Error("User not found!");
+
+          const removeProduct = user.cart.find(item => item.product.toString() === productId);
+          if (!removeProduct) throw new Error("Product not found in the user's cart");
 
           user.cart = user.cart.filter(item => item.product.toString() !== productId);
 
+          user.cartTotal = calculateCartTotal(user.cart);
+
           await user.save();
-          res.json(user.cart);
+          res.json(({ cart: user.cart, cartTotal: user.cartTotal }));
 
      } catch (error) {
           throw new Error(error);
@@ -435,13 +529,105 @@ const getCartUser = asyncHandler(async (req, res) => {
 
           if (!user) throw new Error("User not found");
 
-          const cart = user.cart;
-
-          res.json({ cart: cart, cartTotal: calculateCartTotal(cart) });
+          res.json({ cart: user.cart, cartTotal: user.cartTotal });
 
      } catch (error) {
           throw new Error(error);
      }
+});
+
+// create a order
+const createOrder = asyncHandler(async (req, res) => {
+     const { _id } = req.user;
+     validateMongoDbId(_id);
+
+     try {
+
+          const user = await User.findById(_id);
+          if (!user) throw new Error("User not found");
+          if (user.cart.length === 0) throw new Error("Cannot create an order with an empty cart");
+
+          const order = await Order.create({
+               products: user.cart.map(item => ({
+                    product: item.product,
+                    quantity: item.quantity,
+                    price: item.price,
+                    priceTotal: item.priceTotal,
+                    size: item.size,
+               })),
+
+               cartTotal: user.cartTotal,
+               orderby: _id,
+          });
+
+          user.cart = [];
+          user.cartTotal = 0;
+          
+          await user.save();
+
+          res.json({ order });
+
+     } catch (error) {
+          throw new Error(error);
+     };
+});
+
+// get order
+const getOrder = asyncHandler(async (req, res) => {
+     const { id } = req.params;
+     validateMongoDbId(id);
+     
+     try {
+
+          const findOrder = await Order.findById(id).populate("products.product");
+          res.json(findOrder);
+
+     } catch (error) {
+          throw new Error(error);
+     };
+});
+
+// get all order
+const getAllOrder = asyncHandler(async (req, res) => {
+     try {
+
+          const findAllOrder = await Order.find();
+          res.json(findAllOrder);
+
+     } catch (error) {
+          throw new Error(error);
+     };
+});
+
+// delete order
+const deleteOrder = asyncHandler(async (req, res) => {
+     const { id } = req.params;
+
+     try {
+          
+          const deleteOrder = await Order.findByIdAndDelete(id);
+          res.json(deleteOrder);
+
+     } catch (error) {
+          throw new Error(error);
+     };
+});
+
+const userInfoDelivery = asyncHandler(async (req, res) => {
+     const { _id } = req.user;
+     validateMongoDbId(_id);
+
+     try {
+
+          const user = await User.findByIdAndUpdate(_id, { 
+               $set: { user_info_delivery: req.body }
+          }, { new: true });
+
+          res.json(user.user_info_delivery);
+
+     } catch (error) {
+          throw new Error(error);
+     };
 });
 
 // address add 
@@ -555,7 +741,7 @@ const updateUser = asyncHandler(async (req, res) => {
                expired: updateUser?.expires,
                confirmed: updateUser?.confirmed,
                token: generateToken(updateUser?._id),
-          });
+          });м
 
      } catch (error) {
           throw new Error(error);
@@ -632,6 +818,7 @@ module.exports = {
      getCartUser, 
      removeToCartUser,  
      addressUser, 
+     applyCode,
      getAddressUser, 
      activateUser, 
      updateUser, 
@@ -640,11 +827,17 @@ module.exports = {
      getUser, 
      getAllUser, 
      resetPassword, 
+     userInfoDelivery,
      addressUser, 
      createUserFirebase,
-     forgotPassword, 
+     createOrder,
+     forgotPassword,
      updatePassword,
      blockUser, 
-     unBlockUser, 
-     deleteUser 
+     unBlockUser,
+     deleteOrder,
+     deleteUser,
+     createCheckoutSession,
+     getOrder,
+     getAllOrder,
 };

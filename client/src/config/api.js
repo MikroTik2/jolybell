@@ -23,6 +23,44 @@ export default {
           };
      },
 
+     async orderUser() {
+          try {
+               const token = getTokenFromLocalStorage("userData");
+        
+               const response = await HTTP.post("/user/orders", {}, {
+                    headers: {
+                         Authorization: `Bearer ${token}`,
+                    },
+               });
+
+               const orderId = response.data.order;
+
+               window.location.href = `/booking/${orderId._id}/details`;
+        
+          } catch (error) {
+            throw error;
+          }
+     },
+        
+     async getOrderUser(orderId) {
+          try {
+
+               const token = getTokenFromLocalStorage("userData");
+
+               const response = await HTTP.get(`/user/order/${orderId}`, {
+                    headers: {
+                         Authorization: `Bearer ${token}`,
+                    },
+               })
+
+               console.log(response.data);
+               return response.data;
+
+          } catch (error) {
+               throw error;
+          };
+     },
+
      async getProduct(productId) {
           try {
 
@@ -49,6 +87,24 @@ export default {
           try {
 
                const response = await HTTP.post(`/user/login`, loginUser);
+               return response.data;
+
+          } catch (error) {
+               throw error;
+          };
+     },
+
+     async checkoutLiqPaySession() {
+          try {
+
+               const token = getTokenFromLocalStorage("userData");
+
+               const response = await HTTP.post('/checkout', {}, {
+                    headers: {
+                         Authorization: `Bearer ${token}`,
+                    },
+               });
+
                return response.data;
 
           } catch (error) {
@@ -86,19 +142,37 @@ export default {
                const token = getTokenFromLocalStorage("userData");
 
                const cartItem = {
-                    _id: productId,
+                    product: productId,
                     quantity: quantity,
                     size: size
                };
      
-               const response = await HTTP.put("/user/cart/add", { cart: [cartItem] }, {
+               const response = await HTTP.put("/user/cart/add", { cart: [cartItem] }, { 
+                    headers: { 
+                         Authorization: `Bearer ${token}` 
+                    },
+               });
+           
+               return response.data;
+    
+          } catch (error) {
+               throw error;
+          };
+     },
+
+     async activateCoupon(coupon) {
+          try {
+
+               const token = getTokenFromLocalStorage("userData");
+
+               const response = await HTTP.put("/user/cart/coupon", { couponCode: coupon }, {
                     headers: {
                          Authorization: `Bearer ${token}`,
                     },
                });
 
                return response.data;
-    
+
           } catch (error) {
                throw error;
           };
@@ -196,6 +270,24 @@ export default {
                const token = getTokenFromLocalStorage("userData");
 
                const response = await HTTP.get("/user/cart", {
+                    headers: {
+                         Authorization: `Bearer ${token}`,
+                    },
+               });
+
+               return response.data;
+
+          } catch (error) {
+               throw error;
+          };
+     },
+
+     async userInfoDelivery(bookingInfo) {
+          try {
+
+               const token = getTokenFromLocalStorage("userData");
+
+               const response = await HTTP.post("/user/address/delivery", bookingInfo, {
                     headers: {
                          Authorization: `Bearer ${token}`,
                     },

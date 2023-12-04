@@ -19,11 +19,11 @@ export const useCartStore = defineStore('cartUser', {
 
                } catch (error) {
 
-                    console.error(error);
+                    console.log(error);
 
                };
           },
-
+          
           async fetchCart() {
 
                try {
@@ -33,7 +33,7 @@ export const useCartStore = defineStore('cartUser', {
                     this.cartTotal = cartData.cartTotal;
 
                } catch (error) {
-                    console.error(error);
+                    console.log(error);
                };
           },
 

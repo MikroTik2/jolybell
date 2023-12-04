@@ -14,6 +14,8 @@ const { notFound, errorHandler } = require("./middleware/errorHandler.js");
 // routes
 const authRoutes = require("./routes/authRoute.js");
 const productRoutes = require("./routes/productRoute.js");
+const couponRoutes = require("./routes/couponRoute");
+const checkoutRoutes = require("./routes/checkoutRoute.js");
 
 // connect db
 const dbConnect = require("./config/dbConnect.js");
@@ -35,6 +37,8 @@ app.use(morgan("dev"));
 
 app.use("/api/user", authRoutes);
 app.use("/api/product", productRoutes);
+app.use("/api/coupon", couponRoutes);
+app.use("/api/checkout", checkoutRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
