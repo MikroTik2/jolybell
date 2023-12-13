@@ -19,20 +19,15 @@
                          <div class="account-content-right__details-socials">
 
                               <div class="account-content-right__details-socials-google">
+                                   <span> {{ getDisplayNameGoogle }} </span>
                                    <div class="account-content-right__details-socials-google-icon">
                                         <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
                                              <path d="M20.4 16.4v7.4h11c-.5 3.1-3.3 8.4-11 8.4-6.6 0-12-5.5-12-12.2s5.4-12.2 12-12.2c3.7 0 6.3 1.6 7.7 3l5.7-5.5C30.3 2 25.8 0 20.4 0c-11 0-20 9-20 20s9 20 20 20c11.5 0 19.2-8.1 19.2-19.5 0-1.7-.2-2.8-.5-4.1H20.4z"></path>
                                         </svg>
                                    </div>
+                                   
                               </div>
 
-                              <div class="account-content-right__details-socials-vk">
-                                   <div class="account-content-right__details-socials-google-icon">
-                                        <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
-                                             <path d="M20 0C8.95 0 0 8.95 0 20s8.95 20 20 20 20-8.95 20-20S31.05 0 20 0zm10.15 22.16c.93.91 1.92 1.77 2.76 2.77.37.44.72.9.99 1.42.38.74.04 1.55-.62 1.59h-4.1c-1.06.09-1.9-.34-2.61-1.06-.57-.58-1.09-1.19-1.64-1.79-.22-.24-.46-.48-.74-.66-.56-.36-1.04-.25-1.36.33-.33.59-.4 1.25-.43 1.91-.04.97-.34 1.22-1.31 1.26-2.07.1-4.04-.22-5.86-1.26-1.61-.92-2.86-2.22-3.95-3.69-2.12-2.87-3.74-6.02-5.19-9.26-.34-.72-.1-1.11.7-1.12 1.34-.03 2.67-.02 4.01 0 .54.01.9.32 1.11.83.72 1.78 1.61 3.47 2.72 5.04.3.42.6.83 1.03 1.13.47.33.84.22 1.06-.31.14-.34.21-.7.24-1.06.11-1.24.12-2.47-.07-3.7-.11-.77-.55-1.27-1.32-1.41-.39-.07-.33-.22-.14-.44.33-.39.64-.63 1.26-.63h4.63c.73.14.89.47.99 1.21v5.14c-.01.28.14 1.13.65 1.31.41.14.68-.19.92-.45 1.11-1.18 1.9-2.57 2.61-4.01.31-.63.58-1.29.84-1.95.19-.49.5-.73 1.05-.72l4.46.01c.13 0 .26 0 .39.02.75.13.96.45.72 1.18-.37 1.15-1.08 2.11-1.77 3.07-.74 1.03-1.54 2.02-2.28 3.06-.65.95-.6 1.42.25 2.24z"></path>
-                                        </svg>
-                                   </div>
-                              </div>
 
                          </div>
 
@@ -161,7 +156,6 @@
      const isVisiblePersonal = ref(false);
      const isVisibleAddress = ref(false);
      const isVisiblePassword = ref(false);
-     const userInformation = ref({});
 
      const router = useRouter();
 
@@ -186,6 +180,7 @@
      });
 
      const getUser = JSON.parse(localStorage.getItem("userData"));
+     const getDisplayNameGoogle = getUser.displayName;
      const getUserEmail = getUser.email;
      const getUserFirstName = getUser.firstname;
      const getUserLastName = getUser.lastname;
@@ -428,6 +423,7 @@
 
                          &-socials {
                               display: flex;
+                              height: 50px;
                               
                               @media only screen and (min-width: 1368px) {
                                    flex-direction: column;

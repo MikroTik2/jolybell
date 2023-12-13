@@ -23,7 +23,8 @@ dbConnect();
 
 const PORT = process.env.PORT || 6000;
 
-app.use(cors({ origin: 'https://jolybell-client.vercel.app', credentials: true }));
+// app.use(cors({ origin: 'https://jolybell-client.vercel.app', credentials: true }));
+app.use(cors());
 app.use(cookieParser());
 
 app.use(session({ secret: process.env.SECRET_KEY, resave: true, saveUninitialized: true }));

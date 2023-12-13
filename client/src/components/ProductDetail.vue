@@ -46,10 +46,13 @@
                          <div class="product-content-info-sizes-list">
                               <div class="product-content-info-sizes-list-content">
                                    <button
+                                        :class="{ 
+                                             'product-content-info-sizes-list-content-btn-black': product.color === 'black',
+                                             'product-content-info-sizes-list-content-btn-white': product.color === 'white',
+                                        }"
                                         v-for="(size, index) in ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL']"
                                         :key="index"
-                                        class="product-content-info-sizes-list-content-btn"
-                                        :style="colorBtnSize"
+                                        :style="changeColorBtn(size)"
                                         @click="chooseSizeProduct(size)"
                                    >
                                    {{ size }}
@@ -188,6 +191,7 @@
      const product = ref(null);
      const modalInstruction = ref(false);
      const modalSizeInstruction = ref(false);
+     const isVisibleSize = ref(false);
      const productStyle = ref({
           backgroundColor: '', 
      });
@@ -268,6 +272,24 @@
           };
      };
 
+     const changeColorBtn = (size) => {
+          if (product.value.color === "black") {
+               return {
+                    color: size === chooseSize.value ? 'black' : 'white',
+                    background: size === chooseSize.value ? 'white' : '#474852',
+               };
+          };
+
+          if (product.value.color === "white") {
+               return {
+                    color: size === chooseSize.value ? '#ffffff' : ' #cec6c9',
+                    background: size === chooseSize.value ? '#000' : '#f1ecee',
+               };
+          };
+
+          return {};
+     };
+
      onMounted(async () => {
 
           try {
@@ -324,6 +346,7 @@
                colorTitle.value.color = "#808392";
 
                colorBtnSize.value.color = "#d7d5d6";
+               colorBtnSize.value.backgroundColor = "#000";
 
                colorBtnCount.value.border = "2px solid #000000";
                colorBtnCount.value.backgroundColor = "#ebe6e8";
@@ -517,7 +540,30 @@
                                    flex-wrap: wrap;
                                    margin: -4px;
 
-                                   &-btn {
+                                   &-btn-black {
+                                        background: #474852;
+                                        color: #fff;
+                                        font-weight: 500;
+                                        align-items: center;
+                                        border-radius: 50%;
+                                        cursor: pointer;
+                                        display: flex;
+                                        font-size: 18px;
+                                        height: 38px;
+                                        justify-content: center;
+                                        letter-spacing: 0;
+                                        margin: 4px;
+                                        transition: all .5s;
+                                        user-select: none;
+                                        -moz-user-select: none;
+                                        -webkit-user-select: none;
+                                        width: 38px;
+                                   }
+
+                                   &-btn-white {
+                                        background: #f1ecee;
+                                        color: #cec6c9;
+                                        font-weight: 500;
                                         align-items: center;
                                         border-radius: 50%;
                                         cursor: pointer;
@@ -878,4 +924,8 @@
           }
      }
 
+     .activeBtn {
+          background: var(--black);
+          color: var(--white);
+     }
 </style>
