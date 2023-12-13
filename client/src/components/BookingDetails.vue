@@ -65,7 +65,7 @@
                          </div>
                          <div class="booking-page-content__details-form__item">
                               <p class="booking-page-content__details-form__item-title">ПРИМІТКА</p>
-                              <input v-model.trim="booking.note" class="booking-page-content__details-form__item-input" name="note" maxlength="30" type="text" required>
+                              <input v-model.trim="booking.note" class="booking-page-content__details-form__item-input" name="note" maxlength="30" type="text">
                          </div>
 
                          <div class="booking-page-content__details-form__item">

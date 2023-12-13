@@ -8,7 +8,7 @@ const sendEmail = async (options) => {
           auth: {
               user: 'leone19@ethereal.email',
               pass: 'vhyXDyDZ4FPzt2qSFu'
-          }
+          },
       });
 
      const mailOptions = {
