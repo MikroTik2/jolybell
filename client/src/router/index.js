@@ -8,12 +8,36 @@ import ResetPassword from '@/views/ResetPassword.vue';
 import BookingDetails from '@/views/Booking.vue';
 import BookingPayment from '@/views/BookingPayment.vue';
 
+function getTokenFromLocalStorage(key) {
+     const data = localStorage.getItem(key);
+     return data ? JSON.parse(data).token : null;
+};
+
+function isAuthenticated(){
+
+     const userToken = getTokenFromLocalStorage("userData");
+     return !!userToken;
+
+};
+
 const router = createRouter({
      history: createWebHistory(),
 
      routes: [
           { path: "/", name: "Index", component: Index },
-          { path: "/account", name: "Account", component: Account },
+          { 
+               path: "/account", 
+               name: "Account", 
+               component: Account,
+               beforeEnter: (to, from, next) => {
+                    if (isAuthenticated()) {
+
+                         next();
+                    } else {
+                         next("/");
+                    };
+               },
+          },
           { path: "/category/:category", name: "CategoryPage", component: CategoryPage },
           { path: "/product/:productId", name: "ProductDetail", component: ProductDetail },
           { path: "/faq", name: "FAQPage", component: FAQPage },

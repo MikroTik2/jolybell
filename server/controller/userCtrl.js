@@ -59,27 +59,45 @@ const createUser = asyncHandler(async (req, res) => {
 });
 
 // create a user firebase
-const createUserFirebase = asyncHandler(async(req, res) => {
+const createUserFirebase = asyncHandler(async (req, res) => {
      const { userDataFromGoogleAuth } = req.body;
-
+   
      try {
+          let user = await User.findOne({ email: userDataFromGoogleAuth.email });
+   
+          if (!user) {
+         
+               user = await User.create(userDataFromGoogleAuth);
 
-          const newUser = await User.create(userDataFromGoogleAuth);
+          } else {
 
+               const refreshToken = await generateRefreshToken(user?.id);
+               const updateUser = await User.findByIdAndUpdate(user.id, {
+                    refreshToken: refreshToken,
+               }, { new: true });
+   
+               res.cookie("refreshToken", refreshToken, {
+                    httpOnly: true,
+                    maxAge: 72 * 60 * 60 * 1000,
+               });
+   
+               user = await updateUser.save();
+          };
+   
           res.json({
-               _id: newUser?._id,
-               displayName: newUser?.displayName,
-               firstname: newUser?.firstname,
-               lastname: newUser?.lastname,
-               parentname: newUser?.parentname,
-               email: newUser?.email,
-               role: newUser?.role,
-               expired: newUser?.expires,
-               confirmed: newUser?.confirmed,
-               deliveryAddress: newUser?.deliveryAddress,
-               token: generateRefreshToken(newUser._id)
-          })
-
+               _id: user._id,
+               displayName: user.displayName,
+               firstname: user.firstname,
+               lastname: user.lastname,
+               parentname: user.parentname,
+               email: user.email,
+               role: user.role,
+               expired: user.expires,
+               confirmed: user.confirmed,
+               deliveryAddress: user.deliveryAddress,
+               token: generateRefreshToken(user._id),
+          });
+   
      } catch (error) {
           throw new Error("User already exists");
      };
@@ -92,8 +110,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
      if (findUser && (await findUser.isPasswordMatched(password))) {
 
-          const refreshToken = await generateRefreshToken(findUser?._id);
-          const updateUser = await User.findByIdAndUpdate(findUser._id, {
+          const refreshToken = await generateRefreshToken(findUser?.id);
+          const updateUser = await User.findByIdAndUpdate(findUser.id, {
                refreshToken: refreshToken,
           }, { new: true });
 
@@ -102,18 +120,7 @@ const loginUser = asyncHandler(async (req, res) => {
                maxAge: 72 * 60 * 60 * 1000,
           });
 
-          res.json({
-               _id: findUser?._id,
-               firstname: findUser?.firstname,
-               lastname: findUser?.lastname,
-               parentname: findUser?.parentname,
-               email: findUser?.email,
-               role: findUser?.role,
-               expired: findUser?.expires,
-               confirmed: findUser?.confirmed,
-               deliveryAddress: findUser?.deliveryAddress,
-               token: generateToken(findUser?._id),
-          });
+          res.json();
      } else {
           throw new Error("Invalid credentials");
      };
@@ -358,7 +365,6 @@ const addToCartUser = asyncHandler(async (req, res) => {
 
      try {
           const user = await User.findById(_id);
-          if (!user) throw new Error("User not found");
 
           for (let i = 0; i < cart.length; i++) {
                const product = await Product.findById(cart[i].product).select('price').exec();
