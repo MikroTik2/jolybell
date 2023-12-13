@@ -8,13 +8,13 @@ import App from '@/App.vue';
 import router from '@/router';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDtmMt2Z6dXLS1ZbUbkwDN3-qMZWyCCztQ",
-  authDomain: "jolybell-402209.firebaseapp.com",
-  projectId: "jolybell-402209",
-  storageBucket: "jolybell-402209.appspot.com",
-  messagingSenderId: "282914921093",
-  appId: "1:282914921093:web:86d05fb11c423655e7e7ec",
-  measurementId: "G-3QC8LZSP8J"
+  apiKey: "AIzaSyD6N0u0AkV54yjR89qqERHVreldD78na7I",
+  authDomain: "jolygolf-f2b5b.firebaseapp.com",
+  projectId: "jolygolf-f2b5b",
+  storageBucket: "jolygolf-f2b5b.appspot.com",
+  messagingSenderId: "949704191208",
+  appId: "1:949704191208:web:d24c1ab3670a879324ad5d",
+  measurementId: "G-M9YLN34BN0"
 };
 
 const app = createApp(App)
