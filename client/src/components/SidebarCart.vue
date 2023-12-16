@@ -26,7 +26,7 @@
                          </span>
 
                          <div class="cart-list-product-content-info">
-                              <span class="cart-list-product-content-info-name"> {{ element.product.title }} </span>
+                              <span class="cart-list-product-content-info-name"> {{ element.product?.title }} </span>
 
                               <div class="cart-list-product-content-info-sizes">
                                    <div class="cart-list-product-content-info-sizes-title"> Розмір: </div>
