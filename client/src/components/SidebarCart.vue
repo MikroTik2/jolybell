@@ -235,6 +235,7 @@
           background: var(--white);
           color: var(--black);
           top: 0;
+          bottom: 0;
           right: 0;
           position: fixed;
 
