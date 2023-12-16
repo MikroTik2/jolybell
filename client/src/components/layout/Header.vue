@@ -108,7 +108,7 @@
 
           <ModalSignUp 
                :isVisibleSignIn="isVisibleSignIn"
-               :isVisbleConfirmation="isVisbleConfirmation"
+               :isVisibleConfirmation="isVisibleConfirmation"
                :isVisibleSignUp="isVisibleSignUp" 
                @update-visibility="isVisibleSignUp = !isVisibleSignUp" 
                @open-login="toggleSignIn" 

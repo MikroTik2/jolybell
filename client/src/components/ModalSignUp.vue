@@ -130,7 +130,7 @@
           </div>
      </div> 
 
-     <div class="modal-confirmation" :class="{ 'active-confirm': isVisbleConfirmation }" @click="closeConfirmationModal">
+     <div class="modal-confirmation" :class="{ 'active-confirm': isVisibleConfirmation }" @click="closeConfirmationModal">
           <div class="modal-confirmation-inside">
                <div class="modal-confirmation-inside-content">
                     <span class="modal-confirmation-inside-content-description">
@@ -163,7 +163,7 @@
      });
 
      const isVisibleReset = ref(false);
-     const isVisbleConfirmation = ref(false);
+     const isVisibleConfirmation = ref(false);
 
      const registered = ref({
           email: "",
@@ -201,11 +201,11 @@
      };
 
      const closeConfirmationModal = () => {
-          isVisbleConfirmation.value = false;
+          isVisibleConfirmation.value = false;
      }
 
      const openConfirmationModal = () => {
-          isVisbleConfirmation.value = true;
+          isVisibleConfirmation.value = true;
 
 
      };

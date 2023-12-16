@@ -18,7 +18,7 @@
                <div v-for="element in cartProduct" :key="element._id" class="cart-list-product">
                     <div class="cart-list-product-content">
                          <span class="cart-list-product-content-preview">
-                              <picture v-if="element.product.images">
+                              <picture  v-if="element.product?.images">
                                    <source :srcset="element.product.images[0]">
                                    <img :src="element.product.images[0]" :alt="element.product.slug">
                               </picture>
@@ -27,8 +27,8 @@
                          </span>
 
                          <div class="cart-list-product-content-info">
-                              <span class="cart-list-product-content-info-name" v-if="element.product.title"> {{ element.product.title }} </span>
-                              <span class="cart-list-product-content-info-name" v-else>Name</span>
+                              <span class="cart-list-product-content-info-name"> {{ element.product.title }} </span>
+                              <!-- <span class="cart-list-product-content-info-name" v-else>Name</span> -->
 
                               <div class="cart-list-product-content-info-sizes">
                                    <div class="cart-list-product-content-info-sizes-title"> Розмір: </div>
@@ -152,16 +152,17 @@
      };
 
      const changeQuantityUpdate = async (type, element) => {
+    if (typeof element === 'object' && element !== null) {
+        if (type === 'minus') {
+            element.quantity = element.quantity === 1 ? 1 : element.quantity - 1;
+        } else if (type === 'plus') {
+            element.quantity = element.quantity === 20 ? 20 : element.quantity + 1;
+        }
 
-          if (type === 'minus') {
-               element.quantity === 1 ? (element.quantity = 1) : element.quantity--;
-          } else if (type === 'plus') {
-               element.quantity === 20 ? (element.quantity = 20) : element.quantity++;
-          };
-
-          await cartStore.updateQuantityCart(element.product._id, element.quantity);
-          await getCart(); 
-     };
+        await cartStore.updateQuantityCart(element.product._id, element.quantity);
+        await getCart();
+    }
+};
 
      const changeSizeUpdate = async (updateSize, element) => {
           try {
