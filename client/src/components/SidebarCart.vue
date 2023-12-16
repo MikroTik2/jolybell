@@ -18,15 +18,17 @@
                <div v-for="element in cartProduct" :key="element._id" class="cart-list-product">
                     <div class="cart-list-product-content">
                          <span class="cart-list-product-content-preview">
-                              <picture>
-                                   <source :srcset="element.product?.images[0]">
-                                   <img :src="element.product?.images[0]" :alt="element.product?.slug">
+                              <picture v-if="element.product?.images">
+                                   <source :srcset="element.product.images[0]">
+                                   <img :src="element.product.images[0]" :alt="element?.product.slug">
                               </picture>
 
+                              <div class="cart-list-product-content-preview-loader" v-else></div>
                          </span>
 
                          <div class="cart-list-product-content-info">
-                              <span class="cart-list-product-content-info-name"> {{ element.product?.title }} </span>
+                              <span class="cart-list-product-content-info-name" v-if="element.product.title"> {{ element.product.title }} </span>
+                              <span class="cart-list-product-content-info-name" v-else>Name</span>
 
                               <div class="cart-list-product-content-info-sizes">
                                    <div class="cart-list-product-content-info-sizes-title"> Розмір: </div>
@@ -157,8 +159,10 @@
                element.quantity === 20 ? (element.quantity = 20) : element.quantity++;
           };
 
-          await cartStore.updateQuantityCart(element.product._id, element.quantity);
-          await getCart(); 
+          const response = await api.updateCartUser(element.product._id, element.quantity);
+          console.log(response);
+
+          await getCart();
      };
 
      const changeSizeUpdate = async (updateSize, element) => {
