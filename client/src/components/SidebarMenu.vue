@@ -61,6 +61,7 @@
                transition: all .5s;
                right: 0;
                top: 0;
+               bottom: 0;
                transform: translateX(100%);
                width: 280px;
                z-index: 30;

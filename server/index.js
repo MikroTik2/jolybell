@@ -21,9 +21,10 @@ const checkoutRoutes = require("./routes/checkoutRoute.js");
 const dbConnect = require("./config/dbConnect.js");
 dbConnect();
 
-const PORT = process.env.PORT || 6000;
+const PORT = process.env.PORT || process.env.PORT_NODE;
 
 app.use(cors({ origin: 'https://jolybell-client.vercel.app', credentials: true }));
+// app.use(cors());
 app.use(cookieParser());
 
 app.use(session({ secret: process.env.SECRET_KEY, resave: true, saveUninitialized: true }));

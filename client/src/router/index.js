@@ -14,9 +14,6 @@ function getRoleFromLocalStorage(key) {
      return data ? JSON.parse(data).role : null;
 };
 
-// короче задание на сегодня сделать так что если пользыватель зашел в 
-// аккаунт то его модель будет удалятся гостя
-
 const router = createRouter({
      history: createWebHistory(),
 
