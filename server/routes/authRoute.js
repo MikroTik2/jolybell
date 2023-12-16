@@ -2,7 +2,7 @@ const express = require("express");
 const passport = require('passport');
 const cors = require("cors");
 const router = express.Router();
-const { createUser, loginUser, getAllOrder, userInfoDelivery, deleteOrder, getOrder, createUserFirebase, createOrder, applyCode, addToCartUpdateSizes, activateUser, addToCartUpdate, addToCartUser, getCartUser, removeToCartUser, addressUser, getAddressUser, refreshTokenUser, logoutUser, updateUser, getUser, resetPassword, getAllUser, forgotPassword, blockUser, unBlockUser, deleteUser, updatePassword } = require("../controller/userCtrl.js");
+const { createUser, loginUser, createGuestUser, getAllOrder, userInfoDelivery, deleteOrder, getOrder, createUserFirebase, createOrder, applyCode, addToCartUpdateSizes, activateUser, addToCartUpdate, addToCartUser, getCartUser, removeToCartUser, addressUser, getAddressUser, refreshTokenUser, logoutUser, updateUser, getUser, resetPassword, getAllUser, forgotPassword, blockUser, unBlockUser, deleteUser, updatePassword } = require("../controller/userCtrl.js");
 const { authMiddleware, isAdmin } = require("../middleware/authMiddleware.js");
 
 // post
@@ -28,6 +28,7 @@ router.get('/google/callback', passport.authenticate('google', {
 
 });
 
+router.get("/guest", createGuestUser);
 router.get("/logout", logoutUser);
 router.get("/refresh", refreshTokenUser);
 router.get("/all-user", getAllUser);

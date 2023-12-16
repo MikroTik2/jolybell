@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv").config();
 const bodyParser = require("body-parser");
+const cron = require('node-cron');
 const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const morgan = require("morgan");
@@ -17,13 +18,13 @@ const productRoutes = require("./routes/productRoute.js");
 const couponRoutes = require("./routes/couponRoute");
 const checkoutRoutes = require("./routes/checkoutRoute.js");
 
-// connect db
 const dbConnect = require("./config/dbConnect.js");
 dbConnect();
 
 const PORT = process.env.PORT || 6000;
 
-app.use(cors({ origin: 'https://jolybell-client.vercel.app', credentials: true }));
+// app.use(cors({ origin: 'https://jolybell-client.vercel.app', credentials: true }));
+app.use(cors());
 app.use(cookieParser());
 
 app.use(session({ secret: process.env.SECRET_KEY, resave: true, saveUninitialized: true }));
@@ -34,7 +35,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(morgan("dev"));
 
-
 app.use("/api/user", authRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/coupon", couponRoutes);
@@ -42,6 +42,7 @@ app.use("/api/checkout", checkoutRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
+
 
 app.listen(PORT, () => {
      console.log(`Server working on http://localhost:${PORT}`);

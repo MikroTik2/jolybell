@@ -139,7 +139,7 @@
      const isVisibleSignUp = ref(false);
 
      const userLocalStorage = JSON.parse(localStorage.getItem("userData"));
-     const isUserInfo = computed(() => !userLocalStorage);
+     const isUserInfo = computed(() => !(userLocalStorage && userLocalStorage.role !== "guest"))
 
      const toggleMenu = () => {
           isVisibleMenu.value = !isVisibleMenu.value

@@ -7,37 +7,39 @@ import Account from '@/views/Account.vue';
 import ResetPassword from '@/views/ResetPassword.vue';
 import BookingDetails from '@/views/Booking.vue';
 import BookingPayment from '@/views/BookingPayment.vue';
+import AccountOrder from '@/views/AccountOrder.vue';
 
-function getTokenFromLocalStorage(key) {
+function getRoleFromLocalStorage(key) {
      const data = localStorage.getItem(key);
-     return data ? JSON.parse(data).token : null;
+     return data ? JSON.parse(data).role : null;
 };
 
-function isAuthenticated(){
-
-     const userToken = getTokenFromLocalStorage("userData");
-     return !!userToken;
-
-};
+// короче задание на сегодня сделать так что если пользыватель зашел в 
+// аккаунт то его модель будет удалятся гостя
 
 const router = createRouter({
      history: createWebHistory(),
 
      routes: [
           { path: "/", name: "Index", component: Index },
+
           { 
                path: "/account", 
                name: "Account", 
                component: Account,
                beforeEnter: (to, from, next) => {
-                    if (isAuthenticated()) {
 
+                    const userRole = getRoleFromLocalStorage("userData");
+
+                    if (userRole === "user") {
                          next();
                     } else {
                          next("/");
                     };
                },
           },
+          
+          { path: "/account/order", name: "AccountOrder", component: AccountOrder },
           { path: "/category/:category", name: "CategoryPage", component: CategoryPage },
           { path: "/product/:productId", name: "ProductDetail", component: ProductDetail },
           { path: "/faq", name: "FAQPage", component: FAQPage },

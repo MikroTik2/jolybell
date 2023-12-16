@@ -23,6 +23,17 @@ export default {
           };
      },
 
+     async createGuestUser() {
+          try {
+
+               const response = await HTTP.get("/user/guest");
+               return response.data;
+
+          } catch (error) {
+               throw error;
+          };
+     },
+
      async orderUser() {
           try {
                const token = getTokenFromLocalStorage("userData");

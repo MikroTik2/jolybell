@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 const LiqPay = require("../my_modules/liqpay.js");
 const User = require("../models/userModel.js");
 const Product = require("../models/productModel.js");
@@ -11,6 +12,57 @@ const { generateToken } = require("../config/jwtToken.js");
 const { generateRefreshToken } = require("../config/refreshToken.js");
 
 const liqpay = new LiqPay(process.env.PUBLIC_LIQPAY_KEY, process.env.PRIVATE_LIQPAY_KEY);
+
+// create a guest
+const createGuestUser = asyncHandler(async (req, res) => {
+     try {
+     
+          const existingGuestUserId = req.cookies?.guestUserId;
+
+          if (existingGuestUserId) {
+              const existingGuestUser = await User.findById(existingGuestUserId);
+  
+              if (existingGuestUser) {
+                  return res.json({
+                    _id: guestUser._id,
+                    firstname: guestUser?.firstname,
+                    lastname: guestUser?.lastname,
+                    parentname: guestUser?.parentname,
+                    email: guestUser?.email,
+                    role: "guest",
+                    expired: guestUser?.expires,
+                    confirmed: guestUser?.confirmed,
+                    deliveryAddress: guestUser?.deliveryAddress,
+                    token: generateToken(guestUser._id),
+                  });
+              };
+          };
+  
+          const guestEmail = `guest_${Date.now()}@example.com`;
+          const guestUser = await User.create({ role: "guest", email: guestEmail });
+  
+          res.cookie("guestUserId", guestUser._id, {
+              httpOnly: true,
+              maxAge: 24 * 60 * 60 * 1000,
+          });
+  
+          res.json({
+              _id: guestUser._id,
+              firstname: guestUser?.firstname,
+              lastname: guestUser?.lastname,
+              parentname: guestUser?.parentname,
+              email: guestUser?.email,
+              role: "guest",
+              expired: guestUser?.expires,
+              confirmed: guestUser?.confirmed,
+              deliveryAddress: guestUser?.deliveryAddress,
+              token: generateToken(guestUser._id),
+          });
+       
+     } catch (error) {
+          throw new Error(error);
+     };
+});
 
 // create a user
 const createUser = asyncHandler(async (req, res) => {
@@ -817,6 +869,7 @@ const calculateCartTotal = (cart) => {
 
 module.exports = { 
      createUser,
+     createGuestUser,
      loginUser, 
      addToCartUpdate, 
      addToCartUpdateSizes,
